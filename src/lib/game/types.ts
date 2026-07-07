@@ -35,7 +35,11 @@ export interface Player {
   radius: number;
   rotation: number;
   isHappy: boolean;
+  flapAnimStart: number;
 }
+
+export type ThermometerTopVariant = 1 | 2 | 3;
+export type ThermometerBottomVariant = 1 | 2;
 
 export interface Obstacle {
   id: number;
@@ -46,6 +50,8 @@ export interface Obstacle {
   passed: boolean;
   topLabel: ObstacleLabel;
   bottomLabel: ObstacleLabel;
+  topVariant: ThermometerTopVariant;
+  bottomVariant: ThermometerBottomVariant;
 }
 
 export interface Collectible {

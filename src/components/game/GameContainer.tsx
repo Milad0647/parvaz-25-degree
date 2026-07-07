@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import gsap from "gsap";
 import { GameCanvas } from "./GameCanvas";
 import { StartScreen } from "./StartScreen";
 import { TutorialScreen } from "./TutorialScreen";
@@ -153,14 +152,6 @@ export function GameContainer() {
     if (state.screen !== "playing") return;
 
     stateRef.current = jump(state);
-
-    if (containerRef.current) {
-      gsap.fromTo(
-        containerRef.current,
-        { scale: 1 },
-        { scale: 1.005, duration: 0.08, yoyo: true, repeat: 1 },
-      );
-    }
   }, [showTutorial, startGame]);
 
   const handleRestart = useCallback(() => {

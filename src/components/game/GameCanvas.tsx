@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { loadCharacterSprites } from "@/lib/game/characterSprites";
+import { loadCityBackground } from "@/lib/game/cityBackground";
+import { loadThermometerSprites } from "@/lib/game/thermometerSprites";
 import { updateGameState } from "@/lib/game/engine";
 import { renderGame } from "@/lib/game/renderer";
 import type { Dimensions, GameState } from "@/lib/game/types";
@@ -18,6 +21,14 @@ export function GameCanvas({
 }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    void Promise.all([
+      loadCharacterSprites(),
+      loadCityBackground(),
+      loadThermometerSprites(),
+    ]);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -59,6 +70,10 @@ export function GameCanvas({
         ) {
           onStateChange(next, state);
         }
+      } else {
+        const next = { ...state, frameCount: state.frameCount + 1 };
+        stateRef.current = next;
+        current = next;
       }
 
       renderGame(ctx, current, dims);

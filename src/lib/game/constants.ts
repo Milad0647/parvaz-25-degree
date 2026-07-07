@@ -7,12 +7,29 @@ export const STORAGE_KEYS = {
 
 export const GRAVITY = 0.45;
 export const JUMP_FORCE = -7.5;
-export const PLAYER_RADIUS_RATIO = 0.035;
+export const PLAYER_RADIUS_RATIO = 0.050;
 export const OBSTACLE_WIDTH_RATIO = 0.18;
 export const GAP_HEIGHT_RATIO = 0.22;
 export const MIN_GAP_HEIGHT_RATIO = 0.16;
 export const GROUND_HEIGHT_RATIO = 0.08;
 export const SCROLL_SPEED_BASE = 2.8;
+
+/** Fixed safe gap in px — ~250–300 depending on screen / character size */
+export const GAP_HEIGHT_MIN = 250;
+export const GAP_HEIGHT_MAX = 300;
+
+export function getObstacleGapHeight(
+  canvasHeight: number,
+  phaseIndex = 0,
+): number {
+  const playerDiameter = canvasHeight * PLAYER_RADIUS_RATIO * 2;
+  const base = Math.min(
+    GAP_HEIGHT_MAX,
+    Math.max(GAP_HEIGHT_MIN, Math.round(playerDiameter * 4.5)),
+  );
+  const phaseTighten = phaseIndex * 6;
+  return Math.max(GAP_HEIGHT_MIN, base - phaseTighten);
+}
 
 export const PHASES: GamePhase[] = [
   { name: "شروع سبک", speed: 2.8, gapHeight: 0.22, spawnInterval: 140 },

@@ -11,6 +11,7 @@ import {
   PHASES,
   PLAYER_RADIUS_RATIO,
   TOP_LABELS,
+  getObstacleGapHeight,
 } from "./constants";
 import type {
   CollisionType,
@@ -20,6 +21,12 @@ import type {
   ObstacleLabel,
   Player,
 } from "./types";
+import {
+  areThermometerSpritesLoaded,
+  getThermometerWidth,
+  randomBottomVariant,
+  randomTopVariant,
+} from "./thermometerSprites";
 
 export function createInitialPlayer(dimensions: Dimensions): Player {
   return {
@@ -29,6 +36,7 @@ export function createInitialPlayer(dimensions: Dimensions): Player {
     radius: dimensions.height * PLAYER_RADIUS_RATIO,
     rotation: 0,
     isHappy: false,
+    flapAnimStart: -1,
   };
 }
 
@@ -86,24 +94,30 @@ function randomLabel(labels: ObstacleLabel[]): ObstacleLabel {
 }
 
 export function spawnObstacle(state: GameState, dimensions: Dimensions): Obstacle {
-  const phase = PHASES[state.phaseIndex];
-  const gapHeight = dimensions.height * phase.gapHeight;
-  const minGapY = gapHeight / 2 + dimensions.height * 0.12;
-  const maxGapY = dimensions.height - gapHeight / 2 - dimensions.height * GROUND_HEIGHT_RATIO - 20;
-  const gapY = minGapY + Math.random() * (maxGapY - minGapY);
+  const gapHeight = getObstacleGapHeight(dimensions.height, state.phaseIndex);
+  const minGapY = gapHeight / 2 + dimensions.height * 0.18;
+  const maxGapY =
+    dimensions.height * (1 - GROUND_HEIGHT_RATIO) - gapHeight / 2 - 20;
+  const gapY = minGapY + Math.random() * Math.max(0, maxGapY - minGapY);
 
-  const obstacle: Obstacle = {
+  const topVariant = randomTopVariant();
+  const bottomVariant = randomBottomVariant();
+  const spriteWidth = areThermometerSpritesLoaded()
+    ? getThermometerWidth(topVariant, bottomVariant)
+    : 0;
+
+  return {
     id: state.nextObstacleId,
     x: dimensions.width + 20,
     gapY,
     gapHeight,
-    width: dimensions.width * OBSTACLE_WIDTH_RATIO,
+    width: spriteWidth > 0 ? spriteWidth : dimensions.width * OBSTACLE_WIDTH_RATIO,
     passed: false,
     topLabel: randomLabel(TOP_LABELS),
     bottomLabel: randomLabel(BOTTOM_LABELS),
+    topVariant,
+    bottomVariant,
   };
-
-  return obstacle;
 }
 
 export function jump(state: GameState): GameState {
@@ -116,6 +130,7 @@ export function jump(state: GameState): GameState {
       ...state.player,
       velocityY: JUMP_FORCE * easeFactor,
       isHappy: false,
+      flapAnimStart: state.frameCount,
     },
   };
 }
