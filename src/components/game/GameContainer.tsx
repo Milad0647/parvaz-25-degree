@@ -19,6 +19,7 @@ import {
 import { ENCOURAGEMENT_MESSAGES } from "@/lib/game/constants";
 import {
   playTapSound,
+  preloadAudio,
   startBackgroundMusic,
   stopBackgroundMusic,
 } from "@/lib/game/audio";
@@ -73,6 +74,7 @@ export function GameContainer() {
   }, []);
 
   useEffect(() => {
+    preloadAudio();
     const best = getBestScore();
     setBestScore(best);
     stateRef.current = createInitialState(getDimensions(), best);
@@ -178,11 +180,9 @@ export function GameContainer() {
     }
 
     const wasReady = !state.gameStarted;
-    const next = jump(state);
-    stateRef.current = next;
+    stateRef.current = jump(state);
 
     playTapSound();
-    startBackgroundMusic();
 
     if (wasReady) {
       setGameStarted(true);

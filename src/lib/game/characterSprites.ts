@@ -1,3 +1,5 @@
+import { isMobilePerfMode } from "./performance";
+
 const FRAME_SOURCES = [
   "/character/frame-01.png",
   "/character/frame-02.png",
@@ -11,6 +13,7 @@ const FLAP_ANIMATION_LENGTH = FRAME_SOURCES.length * FLAP_FRAME_DURATION;
 
 let spritesLoaded = false;
 let spritesLoading: Promise<void> | null = null;
+let glowCanvas: HTMLCanvasElement | null = null;
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -19,6 +22,28 @@ function loadImage(src: string): Promise<HTMLImageElement> {
     image.onerror = () => reject(new Error(`Failed to load sprite: ${src}`));
     image.src = src;
   });
+}
+
+function buildGlowCanvas(): void {
+  if (glowCanvas) return;
+
+  const size = 128;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const center = size / 2;
+  const gradient = ctx.createRadialGradient(center, center, 8, center, center, center);
+  gradient.addColorStop(0, "rgba(255, 249, 196, 0.75)");
+  gradient.addColorStop(0.55, "rgba(255, 213, 79, 0.24)");
+  gradient.addColorStop(1, "rgba(255, 213, 79, 0)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
+
+  glowCanvas = canvas;
 }
 
 export function loadCharacterSprites(): Promise<void> {
@@ -30,6 +55,7 @@ export function loadCharacterSprites(): Promise<void> {
       images.forEach((image, index) => {
         FLAP_FRAMES[index] = image;
       });
+      buildGlowCanvas();
       spritesLoaded = true;
     })
     .catch((error) => {
@@ -55,10 +81,13 @@ export function getFlapFrameIndex(
   const elapsed = frameCount - flapAnimStart;
   if (elapsed >= FLAP_ANIMATION_LENGTH) return 0;
 
-  return Math.min(
-    FRAME_SOURCES.length - 1,
-    Math.floor(elapsed / FLAP_FRAME_DURATION),
-  );
+  const frame = Math.floor(elapsed / FLAP_FRAME_DURATION);
+
+  if (isMobilePerfMode()) {
+    return Math.min(1, frame);
+  }
+
+  return Math.min(FRAME_SOURCES.length - 1, frame);
 }
 
 export function drawCharacterSprite(
@@ -76,23 +105,19 @@ export function drawCharacterSprite(
 
   const height = radius * 2.8;
   const width = (image.width / image.height) * height;
+  const mobileLite = isMobilePerfMode();
 
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate((rotation * Math.PI) / 180);
 
-  const glowSize = Math.max(width, height);
-  const pulse = 0.94 + Math.sin(frameCount / 12) * 0.06;
-  const glowRadius = glowSize * 0.68 * pulse;
-
-  const glow = ctx.createRadialGradient(0, 0, glowRadius * 0.1, 0, 0, glowRadius);
-  glow.addColorStop(0, "rgba(255, 249, 196, 0.7)");
-  glow.addColorStop(0.55, "rgba(255, 213, 79, 0.22)");
-  glow.addColorStop(1, "rgba(255, 213, 79, 0)");
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(0, 0, glowRadius, 0, Math.PI * 2);
-  ctx.fill();
+  if (!mobileLite && glowCanvas) {
+    const glowSize = Math.max(width, height);
+    const pulse = 0.94 + Math.sin(frameCount / 12) * 0.06;
+    const glowRadius = glowSize * 0.68 * pulse;
+    const glowDiameter = glowRadius * 2;
+    ctx.drawImage(glowCanvas, -glowRadius, -glowRadius, glowDiameter, glowDiameter);
+  }
 
   if (shieldActive) {
     ctx.strokeStyle = "rgba(100, 181, 246, 0.6)";

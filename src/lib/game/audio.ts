@@ -1,15 +1,21 @@
 const TAP_SRC = "/music/Tap.mp3";
 const MUSIC_SRC = "/music/music.mp3";
 
-let tapAudio: HTMLAudioElement | null = null;
+const TAP_POOL_SIZE = 4;
+
+let tapPool: HTMLAudioElement[] = [];
+let tapPoolIndex = 0;
 let musicAudio: HTMLAudioElement | null = null;
 
-function getTapAudio(): HTMLAudioElement {
-  if (!tapAudio) {
-    tapAudio = new Audio(TAP_SRC);
-    tapAudio.volume = 0.55;
-  }
-  return tapAudio;
+function ensureTapPool(): void {
+  if (tapPool.length > 0) return;
+
+  tapPool = Array.from({ length: TAP_POOL_SIZE }, () => {
+    const audio = new Audio(TAP_SRC);
+    audio.volume = 0.5;
+    audio.preload = "auto";
+    return audio;
+  });
 }
 
 function getMusicAudio(): HTMLAudioElement {
@@ -17,19 +23,29 @@ function getMusicAudio(): HTMLAudioElement {
     musicAudio = new Audio(MUSIC_SRC);
     musicAudio.loop = true;
     musicAudio.volume = 0.35;
+    musicAudio.preload = "auto";
   }
   return musicAudio;
 }
 
+export function preloadAudio(): void {
+  ensureTapPool();
+  void getMusicAudio().load();
+}
+
+/** Play tap SFX on next frame so input stays responsive. */
 export function playTapSound(): void {
-  try {
-    const base = getTapAudio();
-    const audio = base.cloneNode() as HTMLAudioElement;
-    audio.volume = base.volume;
-    void audio.play();
-  } catch {
-    // Autoplay restrictions — ignore silently
-  }
+  requestAnimationFrame(() => {
+    try {
+      ensureTapPool();
+      const audio = tapPool[tapPoolIndex % TAP_POOL_SIZE];
+      tapPoolIndex += 1;
+      audio.currentTime = 0;
+      void audio.play();
+    } catch {
+      // Autoplay restrictions — ignore silently
+    }
+  });
 }
 
 /** Start or resume looped background music without resetting playback. */

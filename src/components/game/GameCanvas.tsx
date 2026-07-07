@@ -5,6 +5,7 @@ import { loadCharacterSprites } from "@/lib/game/characterSprites";
 import { loadCollectibleSprites } from "@/lib/game/collectibleSprites";
 import { loadCityBackground, prepareCityStrip } from "@/lib/game/cityBackground";
 import { updateGameState } from "@/lib/game/engine";
+import { preloadAudio } from "@/lib/game/audio";
 import { getCanvasDpr, isCoarsePointer } from "@/lib/game/performance";
 import { renderGame } from "@/lib/game/renderer";
 import { loadThermometerSprites } from "@/lib/game/thermometerSprites";
@@ -16,6 +17,33 @@ interface GameCanvasProps {
   onStateChange: (state: GameState, prev: GameState) => void;
 }
 
+const IDLE_FRAME_MS = 33;
+
+type ReactSyncSnapshot = Pick<
+  GameState,
+  "score" | "screen" | "phaseIndex" | "gameStarted" | "isPaused"
+>;
+
+function captureSyncSnapshot(state: GameState): ReactSyncSnapshot {
+  return {
+    score: state.score,
+    screen: state.screen,
+    phaseIndex: state.phaseIndex,
+    gameStarted: state.gameStarted,
+    isPaused: state.isPaused,
+  };
+}
+
+function shouldSyncReact(state: GameState, prev: ReactSyncSnapshot): boolean {
+  return (
+    state.score !== prev.score ||
+    state.screen !== prev.screen ||
+    state.phaseIndex !== prev.phaseIndex ||
+    state.gameStarted !== prev.gameStarted ||
+    state.isPaused !== prev.isPaused
+  );
+}
+
 export function GameCanvas({
   stateRef,
   getDimensions,
@@ -25,10 +53,12 @@ export function GameCanvas({
   const rafRef = useRef<number>(0);
   const dimensionsRef = useRef<Dimensions>({ width: 390, height: 844 });
   const onStateChangeRef = useRef(onStateChange);
+  const lastRenderAtRef = useRef(0);
 
   onStateChangeRef.current = onStateChange;
 
   useEffect(() => {
+    preloadAudio();
     void Promise.all([
       loadCharacterSprites(),
       loadCollectibleSprites(),
@@ -68,36 +98,40 @@ export function GameCanvas({
     resize();
     window.addEventListener("resize", resize);
 
-    const loop = () => {
+    const loop = (now: number) => {
       const state = stateRef.current;
       if (!state) {
         rafRef.current = requestAnimationFrame(loop);
         return;
       }
 
+      const isActivePlay =
+        state.screen === "playing" && state.gameStarted && !state.isPaused;
+      const frameBudget = isActivePlay ? 0 : IDLE_FRAME_MS;
+
+      if (frameBudget > 0 && now - lastRenderAtRef.current < frameBudget) {
+        rafRef.current = requestAnimationFrame(loop);
+        return;
+      }
+      lastRenderAtRef.current = now;
+
       const dims = dimensionsRef.current;
-      let current = state;
 
       if (state.screen === "playing") {
-        const next = updateGameState(state, dims);
-        stateRef.current = next;
-        current = next;
+        const prevSnapshot = captureSyncSnapshot(state);
+        updateGameState(state, dims);
 
-        if (
-          next.score !== state.score ||
-          next.screen !== state.screen ||
-          next.phaseIndex !== state.phaseIndex ||
-          next.gameStarted !== state.gameStarted ||
-          next.isPaused !== state.isPaused
-        ) {
-          onStateChangeRef.current(next, state);
+        if (shouldSyncReact(state, prevSnapshot)) {
+          onStateChangeRef.current(state, {
+            ...state,
+            ...prevSnapshot,
+          });
         }
       } else {
         state.frameCount += 1;
-        current = state;
       }
 
-      renderGame(ctx, current, dims);
+      renderGame(ctx, state, dims);
       rafRef.current = requestAnimationFrame(loop);
     };
 

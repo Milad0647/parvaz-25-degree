@@ -1,3 +1,4 @@
+import { isMobilePerfMode } from "./performance";
 import { GROUND_HEIGHT_RATIO } from "./constants";
 import {
   areCharacterSpritesLoaded,
@@ -165,7 +166,7 @@ function drawCollectible(
   type: CollectibleType,
   frameCount: number,
 ): void {
-  const bob = Math.sin(frameCount / 15) * 4;
+  const bob = isMobilePerfMode() ? 0 : Math.sin(frameCount / 15) * 4;
   const image = getCollectibleImage(type);
 
   ctx.save();

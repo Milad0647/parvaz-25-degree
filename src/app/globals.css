@@ -54,6 +54,7 @@ canvas.game-canvas {
   display: block;
   width: 100%;
   height: 100%;
+  touch-action: none;
 }
 
 .overlay-screen {
@@ -474,7 +475,42 @@ canvas.game-canvas {
   width: 4.9rem;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.35));
+}
+
+@media (pointer: fine) {
+  .ready-tap-image {
+    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.35));
+  }
+}
+
+.ready-tap-bounce {
+  animation: ready-tap-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes ready-tap-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-12px) scale(1.05);
+  }
+}
+
+.start-character-float {
+  animation: start-character-float 2.2s ease-in-out infinite;
+}
+
+@keyframes start-character-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-14px);
+  }
 }
 
 .pause-overlay {
