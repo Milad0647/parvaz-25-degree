@@ -1,14 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loadCharacterSprites } from "@/lib/game/characterSprites";
-
-const CHARACTER_FRAMES = [
-  "/character/frame-01.png",
-  "/character/frame-02.png",
-  "/character/frame-03.png",
-  "/character/frame-04.png",
-] as const;
+import {
+  CHARACTER_FRAME_SOURCES,
+  loadCharacterSprites,
+} from "@/lib/game/characterSprites";
 
 const FRAME_INTERVAL_MS = 120;
 
@@ -19,7 +15,7 @@ export function StartCharacterPreview() {
     void loadCharacterSprites();
 
     const interval = setInterval(() => {
-      setFrameIndex((index) => (index + 1) % CHARACTER_FRAMES.length);
+      setFrameIndex((index) => (index + 1) % CHARACTER_FRAME_SOURCES.length);
     }, FRAME_INTERVAL_MS);
 
     return () => clearInterval(interval);
@@ -27,7 +23,7 @@ export function StartCharacterPreview() {
 
   return (
     <img
-      src={CHARACTER_FRAMES[frameIndex]}
+      src={CHARACTER_FRAME_SOURCES[frameIndex]}
       alt=""
       className="start-character start-character-float"
       draggable={false}

@@ -1,11 +1,13 @@
 import { isMobilePerfMode } from "./performance";
 
-const FRAME_SOURCES = [
-  "/character/frame-01.png",
-  "/character/frame-02.png",
-  "/character/frame-03.png",
-  "/character/frame-04.png",
+export const CHARACTER_FRAME_SOURCES = [
+  "/character/frame-01.webp",
+  "/character/frame-02.webp",
+  "/character/frame-03.webp",
+  "/character/frame-04.webp",
 ] as const;
+
+const FRAME_SOURCES = CHARACTER_FRAME_SOURCES;
 
 const FLAP_FRAMES: HTMLImageElement[] = [];
 const FLAP_FRAME_DURATION = 4;
