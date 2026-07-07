@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+:root {
+  --color-sky-top: #0b1a3a;
+  --color-sky-bottom: #1a3a6e;
+  --color-accent: #ffd54f;
+  --color-safe: #4caf50;
+  --color-danger: #ef5350;
+  --color-warning: #ff9800;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Vazirmatn", "Tahoma", system-ui, sans-serif;
+  background: var(--color-sky-top);
+  user-select: none;
+}
+
+#__next,
+body > div {
+  height: 100%;
+}
+
+.game-container {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--color-sky-top) 0%, var(--color-sky-bottom) 100%);
+}
+
+canvas.game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.overlay-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 10;
+  background: rgba(11, 26, 58, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ffd54f 0%, #ffb300 100%);
+  color: #1a237e;
+  font-weight: 700;
+  font-size: 1.125rem;
+  padding: 0.875rem 2rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255, 213, 79, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  min-width: 200px;
+}
+
+.btn-primary:active {
+  transform: scale(0.96);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #90caf9;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  border: 2px solid rgba(144, 202, 249, 0.4);
+  cursor: pointer;
+  min-width: 200px;
+}
+
+.btn-secondary:active {
+  transform: scale(0.96);
+}
+
+.hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.hud-score {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  line-height: 1;
+}
+
+.hud-best {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: left;
+}
+
+.tip-banner {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1rem;
+  right: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+  text-align: center;
+  z-index: 5;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
