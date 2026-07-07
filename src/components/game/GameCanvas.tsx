@@ -3,10 +3,11 @@
 import { useEffect, useRef } from "react";
 import { loadCharacterSprites } from "@/lib/game/characterSprites";
 import { loadCollectibleSprites } from "@/lib/game/collectibleSprites";
-import { loadCityBackground } from "@/lib/game/cityBackground";
-import { loadThermometerSprites } from "@/lib/game/thermometerSprites";
+import { loadCityBackground, prepareCityStrip } from "@/lib/game/cityBackground";
 import { updateGameState } from "@/lib/game/engine";
+import { getCanvasDpr, isCoarsePointer } from "@/lib/game/performance";
 import { renderGame } from "@/lib/game/renderer";
+import { loadThermometerSprites } from "@/lib/game/thermometerSprites";
 import type { Dimensions, GameState } from "@/lib/game/types";
 
 interface GameCanvasProps {
@@ -22,6 +23,10 @@ export function GameCanvas({
 }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
+  const dimensionsRef = useRef<Dimensions>({ width: 390, height: 844 });
+  const onStateChangeRef = useRef(onStateChange);
+
+  onStateChangeRef.current = onStateChange;
 
   useEffect(() => {
     void Promise.all([
@@ -29,21 +34,34 @@ export function GameCanvas({
       loadCollectibleSprites(),
       loadCityBackground(),
       loadThermometerSprites(),
-    ]);
+    ]).then(() => {
+      prepareCityStrip(dimensionsRef.current.height);
+    });
   }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", {
+      alpha: false,
+      desynchronized: true,
+    });
     if (!ctx) return;
+
+    if (isCoarsePointer()) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "low";
+    }
 
     const resize = () => {
       const dims = getDimensions();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = dims.width * dpr;
-      canvas.height = dims.height * dpr;
+      dimensionsRef.current = dims;
+      prepareCityStrip(dims.height);
+
+      const dpr = getCanvasDpr();
+      canvas.width = Math.round(dims.width * dpr);
+      canvas.height = Math.round(dims.height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
@@ -57,7 +75,7 @@ export function GameCanvas({
         return;
       }
 
-      const dims = getDimensions();
+      const dims = dimensionsRef.current;
       let current = state;
 
       if (state.screen === "playing") {
@@ -68,14 +86,15 @@ export function GameCanvas({
         if (
           next.score !== state.score ||
           next.screen !== state.screen ||
-          next.phaseIndex !== state.phaseIndex
+          next.phaseIndex !== state.phaseIndex ||
+          next.gameStarted !== state.gameStarted ||
+          next.isPaused !== state.isPaused
         ) {
-          onStateChange(next, state);
+          onStateChangeRef.current(next, state);
         }
       } else {
-        const next = { ...state, frameCount: state.frameCount + 1 };
-        stateRef.current = next;
-        current = next;
+        state.frameCount += 1;
+        current = state;
       }
 
       renderGame(ctx, current, dims);
@@ -88,7 +107,7 @@ export function GameCanvas({
       window.removeEventListener("resize", resize);
       cancelAnimationFrame(rafRef.current);
     };
-  }, [getDimensions, onStateChange, stateRef]);
+  }, [getDimensions, stateRef]);
 
   return <canvas ref={canvasRef} className="game-canvas" />;
 }

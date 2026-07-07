@@ -200,6 +200,8 @@ export function renderGame(
   drawCityBackground(ctx, width, height, state.frameCount);
 
   for (const obs of state.obstacles) {
+    if (obs.x + obs.width < 0 || obs.x > width) continue;
+
     if (areThermometerSpritesLoaded()) {
       drawThermometerSprites(
         ctx,
@@ -225,8 +227,9 @@ export function renderGame(
   }
 
   for (const col of state.collectibles) {
-    if (!col.collected) {
-      drawCollectible(
+    if (col.collected || col.x < -40 || col.x > width + 40) continue;
+
+    drawCollectible(
         ctx,
         col.x,
         col.y,
@@ -234,7 +237,6 @@ export function renderGame(
         col.type,
         state.frameCount,
       );
-    }
   }
 
   const frameIndex = getFlapFrameIndex(
@@ -250,6 +252,7 @@ export function renderGame(
       state.player.radius,
       state.player.rotation,
       frameIndex,
+      state.frameCount,
       state.shieldActive,
     );
   } else {

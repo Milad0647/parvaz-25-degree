@@ -95,26 +95,18 @@ function drawSafeGapGlow(
   const gapHeight = gapBottom - gapTop;
   const pad = 4;
 
-  const glow = ctx.createLinearGradient(x, gapTop, x + width, gapBottom);
-  glow.addColorStop(0, "rgba(76, 175, 80, 0.15)");
-  glow.addColorStop(0.5, "rgba(129, 199, 132, 0.35)");
-  glow.addColorStop(1, "rgba(76, 175, 80, 0.15)");
-  ctx.fillStyle = glow;
+  ctx.fillStyle = "rgba(129, 199, 132, 0.3)";
   ctx.fillRect(x + pad, gapTop, width - pad * 2, gapHeight);
 
   ctx.strokeStyle = "rgba(102, 187, 106, 0.55)";
   ctx.lineWidth = 2;
   ctx.strokeRect(x + pad, gapTop, width - pad * 2, gapHeight);
 
-  ctx.save();
-  ctx.shadowColor = "rgba(129, 199, 132, 0.9)";
-  ctx.shadowBlur = 14;
   ctx.fillStyle = "#ffffff";
   ctx.font = `bold ${Math.min(width * 0.28, 24)}px Vazirmatn, Tahoma, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("۲۵°", x + width / 2, gapY);
-  ctx.restore();
 }
 
 /**

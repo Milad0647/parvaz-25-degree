@@ -23,8 +23,9 @@ function getMusicAudio(): HTMLAudioElement {
 
 export function playTapSound(): void {
   try {
-    const audio = getTapAudio();
-    audio.currentTime = 0;
+    const base = getTapAudio();
+    const audio = base.cloneNode() as HTMLAudioElement;
+    audio.volume = base.volume;
     void audio.play();
   } catch {
     // Autoplay restrictions — ignore silently
