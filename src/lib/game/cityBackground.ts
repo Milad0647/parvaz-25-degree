@@ -1,4 +1,4 @@
-const CITY_SOURCE = "/city/City.png";
+const CITY_SOURCE = "/city/City.webp";
 const SCROLL_SPEED = 0.4;
 
 let cityImage: HTMLImageElement | null = null;
