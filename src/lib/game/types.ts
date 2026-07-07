@@ -89,6 +89,8 @@ export interface GameState {
   spawnTimer: number;
   collectibleSpawnTimer: number;
   deathMessage: string;
+  gameStarted: boolean;
+  isPaused: boolean;
 }
 
 export interface Dimensions {

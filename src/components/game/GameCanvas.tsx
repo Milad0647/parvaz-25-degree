@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { loadCharacterSprites } from "@/lib/game/characterSprites";
+import { loadCollectibleSprites } from "@/lib/game/collectibleSprites";
 import { loadCityBackground } from "@/lib/game/cityBackground";
 import { loadThermometerSprites } from "@/lib/game/thermometerSprites";
 import { updateGameState } from "@/lib/game/engine";
@@ -25,6 +26,7 @@ export function GameCanvas({
   useEffect(() => {
     void Promise.all([
       loadCharacterSprites(),
+      loadCollectibleSprites(),
       loadCityBackground(),
       loadThermometerSprites(),
     ]);

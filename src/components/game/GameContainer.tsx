@@ -7,14 +7,21 @@ import { StartScreen } from "./StartScreen";
 import { TutorialScreen } from "./TutorialScreen";
 import { GameOverScreen } from "./GameOverScreen";
 import { HUD } from "./HUD";
-import { TipBanner } from "./TipBanner";
 import { EncouragementToast } from "./EncouragementToast";
+import { ReadyOverlay } from "./ReadyOverlay";
+import { PauseOverlay } from "./PauseOverlay";
 import {
   createInitialState,
   jump,
   resetGameState,
+  togglePause,
 } from "@/lib/game/engine";
-import { ENCOURAGEMENT_MESSAGES, PHASES } from "@/lib/game/constants";
+import { ENCOURAGEMENT_MESSAGES } from "@/lib/game/constants";
+import {
+  playTapSound,
+  startBackgroundMusic,
+  stopBackgroundMusic,
+} from "@/lib/game/audio";
 import {
   getBestScore,
   hasSeenTutorial,
@@ -32,10 +39,11 @@ export function GameContainer() {
   const [screen, setScreen] = useState<GameScreen>("menu");
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(0);
-  const [phaseName, setPhaseName] = useState(PHASES[0].name);
   const [deathMessage, setDeathMessage] = useState("");
   const [showTutorial, setShowTutorial] = useState(false);
   const [encouragement, setEncouragement] = useState<string | null>(null);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   const showEncouragement = useCallback(() => {
     const message =
@@ -81,18 +89,23 @@ export function GameContainer() {
       if (toastTimerRef.current) {
         clearTimeout(toastTimerRef.current);
       }
+      stopBackgroundMusic();
     };
   }, []);
 
   const handleStateChange = useCallback(
     (next: GameState, prev: GameState) => {
+      if (next.gameStarted !== prev.gameStarted) {
+        setGameStarted(next.gameStarted);
+      }
+
+      if (next.isPaused !== prev.isPaused) {
+        setIsPaused(next.isPaused);
+      }
+
       if (next.score > prev.score) {
         setScore(next.score);
         showEncouragement();
-      }
-
-      if (next.phaseIndex !== prev.phaseIndex) {
-        setPhaseName(PHASES[next.phaseIndex].name);
       }
 
       if (next.screen !== prev.screen) {
@@ -101,6 +114,9 @@ export function GameContainer() {
         if (next.screen === "gameover") {
           setEncouragement(null);
           setDeathMessage(next.deathMessage);
+          setGameStarted(false);
+          setIsPaused(false);
+
           const newBest = Math.max(next.bestScore, next.score);
           if (next.score > next.bestScore) {
             saveBestScore(next.score);
@@ -116,17 +132,20 @@ export function GameContainer() {
   );
 
   const launchGame = useCallback(() => {
+    startBackgroundMusic();
     const dims = getDimensions();
     const current = stateRef.current ?? createInitialState(dims, bestScore);
     const next = resetGameState({ ...current, bestScore }, dims);
     stateRef.current = next;
     setScore(0);
-    setPhaseName(PHASES[0].name);
     setEncouragement(null);
+    setGameStarted(false);
+    setIsPaused(false);
     setScreen("playing");
   }, [bestScore, getDimensions]);
 
   const startGame = useCallback(() => {
+    startBackgroundMusic();
     if (!hasSeenTutorial()) {
       setShowTutorial(true);
       return;
@@ -151,8 +170,33 @@ export function GameContainer() {
 
     if (state.screen !== "playing") return;
 
-    stateRef.current = jump(state);
+    if (state.isPaused) {
+      const resumed = togglePause(state);
+      stateRef.current = resumed;
+      setIsPaused(false);
+      return;
+    }
+
+    const wasReady = !state.gameStarted;
+    const next = jump(state);
+    stateRef.current = next;
+
+    playTapSound();
+    startBackgroundMusic();
+
+    if (wasReady) {
+      setGameStarted(true);
+    }
   }, [showTutorial, startGame]);
+
+  const handlePause = useCallback(() => {
+    const state = stateRef.current;
+    if (!state || state.screen !== "playing" || !state.gameStarted) return;
+
+    const next = togglePause(state);
+    stateRef.current = next;
+    setIsPaused(next.isPaused);
+  }, []);
 
   const handleRestart = useCallback(() => {
     launchGame();
@@ -163,8 +207,9 @@ export function GameContainer() {
     stateRef.current = createInitialState(dims, bestScore);
     setScreen("menu");
     setScore(0);
-    setPhaseName(PHASES[0].name);
     setEncouragement(null);
+    setGameStarted(false);
+    setIsPaused(false);
   }, [bestScore, getDimensions]);
 
   const handlePointer = useCallback(
@@ -206,9 +251,10 @@ export function GameContainer() {
 
       {screen === "playing" && (
         <>
-          <HUD score={score} bestScore={bestScore} phaseName={phaseName} />
-          <TipBanner />
-          <EncouragementToast message={encouragement} />
+          <HUD score={score} isPaused={isPaused} onPause={handlePause} />
+          {!gameStarted && <ReadyOverlay />}
+          {isPaused && <PauseOverlay />}
+          {gameStarted && <EncouragementToast message={encouragement} />}
         </>
       )}
 

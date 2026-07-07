@@ -63,6 +63,8 @@ export function createInitialState(
     spawnTimer: 0,
     collectibleSpawnTimer: 80,
     deathMessage: DEATH_MESSAGES.default,
+    gameStarted: false,
+    isPaused: false,
   };
 }
 
@@ -86,6 +88,8 @@ export function resetGameState(state: GameState, dimensions: Dimensions): GameSt
     spawnTimer: 60,
     collectibleSpawnTimer: 80,
     deathMessage: DEATH_MESSAGES.default,
+    gameStarted: false,
+    isPaused: false,
   };
 }
 
@@ -120,8 +124,85 @@ export function spawnObstacle(state: GameState, dimensions: Dimensions): Obstacl
   };
 }
 
+export function togglePause(state: GameState): GameState {
+  if (state.screen !== "playing" || !state.gameStarted) return state;
+  return { ...state, isPaused: !state.isPaused };
+}
+
+function updateReadyHover(
+  state: GameState,
+  dimensions: Dimensions,
+): GameState {
+  const baseY = dimensions.height * 0.45;
+  const hoverY = baseY + Math.sin(state.frameCount / 18) * 10;
+
+  return {
+    ...state,
+    frameCount: state.frameCount + 1,
+    player: {
+      ...state.player,
+      y: hoverY,
+      velocityY: 0,
+      rotation: Math.sin(state.frameCount / 25) * 4,
+    },
+  };
+}
+
+function spawnCollectibleInGap(
+  state: GameState,
+  dimensions: Dimensions,
+): GameState | null {
+  const gapObstacles = state.obstacles.filter(
+    (obs) => obs.x > dimensions.width * 0.15 && obs.x < dimensions.width * 0.9,
+  );
+
+  if (gapObstacles.length === 0) return null;
+
+  const obstacle =
+    gapObstacles[Math.floor(Math.random() * gapObstacles.length)];
+  const gapTop = obstacle.gapY - obstacle.gapHeight / 2;
+  const gapBottom = obstacle.gapY + obstacle.gapHeight / 2;
+  const margin = obstacle.gapHeight * 0.18;
+  const safeHeight = gapBottom - gapTop - margin * 2;
+
+  if (safeHeight < 30) return null;
+
+  const types = ["saatKhaloot", "masrafDorost"] as const;
+  const type = types[Math.floor(Math.random() * types.length)];
+
+  return {
+    ...state,
+    collectibles: [
+      ...state.collectibles,
+      {
+        id: state.nextCollectibleId,
+        x: obstacle.x + obstacle.width * 0.35,
+        y: gapTop + margin + Math.random() * safeHeight,
+        type,
+        collected: false,
+        radius: 20,
+      },
+    ],
+    nextCollectibleId: state.nextCollectibleId + 1,
+    collectibleSpawnTimer: 200 + Math.random() * 140,
+  };
+}
+
 export function jump(state: GameState): GameState {
-  if (state.screen !== "playing") return state;
+  if (state.screen !== "playing" || state.isPaused) return state;
+
+  if (!state.gameStarted) {
+    return {
+      ...state,
+      gameStarted: true,
+      player: {
+        ...state.player,
+        velocityY: JUMP_FORCE,
+        isHappy: false,
+        flapAnimStart: state.frameCount,
+      },
+    };
+  }
 
   const easeFactor = state.slowMotionTimer > 0 ? 0.85 : 1;
   return {
@@ -184,6 +265,11 @@ export function updateGameState(
   dimensions: Dimensions,
 ): GameState {
   if (state.screen !== "playing") return state;
+  if (state.isPaused) return state;
+
+  if (!state.gameStarted) {
+    return updateReadyHover(state, dimensions);
+  }
 
   let newState = { ...state, frameCount: state.frameCount + 1 };
 
@@ -307,24 +393,15 @@ export function updateGameState(
     }
   }
 
-  // Collectibles spawn & update
+  // Collectibles spawn inside safe gaps only
   newState.collectibleSpawnTimer -= 1;
-  if (newState.collectibleSpawnTimer <= 0 && Math.random() < 0.6) {
-    const types = ["25deg", "saatKhaloot", "masrafDorost", "kolerKond", "khamooshi"] as const;
-    const type = types[Math.floor(Math.random() * types.length)];
-    newState.collectibles = [
-      ...newState.collectibles,
-      {
-        id: newState.nextCollectibleId,
-        x: dimensions.width + 40,
-        y: dimensions.height * (0.25 + Math.random() * 0.4),
-        type,
-        collected: false,
-        radius: 18,
-      },
-    ];
-    newState.nextCollectibleId += 1;
-    newState.collectibleSpawnTimer = 180 + Math.random() * 120;
+  if (newState.collectibleSpawnTimer <= 0) {
+    const spawned = spawnCollectibleInGap(newState, dimensions);
+    if (spawned) {
+      newState = spawned;
+    } else {
+      newState.collectibleSpawnTimer = 60;
+    }
   }
 
   newState.collectibles = newState.collectibles

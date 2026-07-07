@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { getMedalForScore } from "@/lib/game/medals";
 
 interface GameOverScreenProps {
   score: number;
@@ -19,94 +18,108 @@ export function GameOverScreen({
   onMenu,
 }: GameOverScreenProps) {
   const isNewRecord = score >= bestScore && score > 0;
-  const medal = getMedalForScore(score);
 
   return (
     <motion.div
-      className="overlay-screen"
+      className="gameover-screen"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
+      <img
+        src="/icon/background.webp"
+        alt=""
+        className="gameover-bg"
+        draggable={false}
+      />
+      <div className="gameover-bg-overlay" aria-hidden />
+
       <motion.div
         initial={{ y: 40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="flex flex-col items-center gap-4 text-center max-w-sm w-full"
+        className="gameover-content"
       >
-        <motion.div
+        <motion.img
+          src="/icon/lamp.webp"
+          alt=""
+          className="gameover-lamp"
+          draggable={false}
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", delay: 0.1 }}
-        >
-          <span className="text-5xl">💡</span>
-        </motion.div>
+        />
 
-        <h2 className="text-2xl font-extrabold text-red-300">
-          مسیر از ۲۵ درجه خارج شد
-        </h2>
+        <h2 className="gameover-title">مسیر از ۲۵ درجه خارج شد</h2>
 
-        <div className="bg-white/10 rounded-2xl px-6 py-4 w-full">
-          <p className="text-white/60 text-sm mb-1">امتیاز شما</p>
-          <p className="text-5xl font-extrabold text-yellow-300">{score}</p>
-          {isNewRecord && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-green-400 text-sm font-bold mt-1"
-            >
-              رکورد جدید!
-            </motion.p>
-          )}
-          <p className="text-white/50 text-sm mt-2">
-            بهترین رکورد: {bestScore}
-          </p>
+        <div className="gameover-score-section">
+          <div className="gameover-score-wrap">
+            <img
+              src="/icon/caption-score.webp"
+              alt=""
+              className="gameover-score-caption"
+              draggable={false}
+            />
+            <span className="gameover-score-value">{score}</span>
+          </div>
         </div>
 
-        {medal && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="bg-yellow-500/15 border border-yellow-400/40 rounded-xl px-4 py-3 w-full"
+        {isNewRecord && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="gameover-new-record"
           >
-            <p className="text-yellow-300 font-bold text-sm">
-              {medal.emoji} {medal.title}
-            </p>
-            <p className="text-yellow-100/80 text-xs mt-1">{medal.description}</p>
-          </motion.div>
+            رکورد جدید!
+          </motion.p>
         )}
+
+        <p className="gameover-best">بهترین رکورد: {bestScore}</p>
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-blue-900/50 border border-blue-400/30 rounded-xl px-4 py-3 w-full"
+          className="gameover-message-block"
         >
-          <p className="text-blue-100 text-sm leading-relaxed">{deathMessage}</p>
+          <div className="gameover-message-wrap">
+            <img
+              src="/icon/text-cap.webp"
+              alt=""
+              className="gameover-text-cap"
+              draggable={false}
+            />
+            <div className="gameover-message-inner">
+              <p className="gameover-message">{deathMessage}</p>
+            </div>
+          </div>
         </motion.div>
 
-        <div className="flex flex-col gap-3 w-full mt-2">
+        <div className="gameover-actions">
           <motion.button
-            className="btn-primary"
+            type="button"
+            className="gameover-img-btn"
             onClick={(e) => {
               e.stopPropagation();
               onRestart();
             }}
             whileTap={{ scale: 0.96 }}
+            aria-label="دوباره تلاش کن"
           >
-            دوباره تلاش کن
+            <img src="/icon/try-again.webp" alt="دوباره تلاش کن" draggable={false} />
           </motion.button>
 
           <motion.button
-            className="btn-secondary"
+            type="button"
+            className="gameover-img-btn"
             onClick={(e) => {
               e.stopPropagation();
               onMenu();
             }}
             whileTap={{ scale: 0.96 }}
+            aria-label="بازگشت"
           >
-            بازگشت
+            <img src="/icon/back.webp" alt="بازگشت" draggable={false} />
           </motion.button>
         </div>
       </motion.div>

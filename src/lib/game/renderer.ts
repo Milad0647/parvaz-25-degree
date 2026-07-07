@@ -1,15 +1,16 @@
-import { COLLECTIBLE_LABELS, GROUND_HEIGHT_RATIO } from "./constants";
+import { GROUND_HEIGHT_RATIO } from "./constants";
 import {
   areCharacterSpritesLoaded,
   drawCharacterSprite,
   getFlapFrameIndex,
 } from "./characterSprites";
+import { getCollectibleImage } from "./collectibleSprites";
 import { drawCityBackground } from "./cityBackground";
 import {
   areThermometerSpritesLoaded,
   drawThermometerSprites,
 } from "./thermometerSprites";
-import type { Dimensions, GameState } from "./types";
+import type { CollectibleType, Dimensions, GameState } from "./types";
 
 function drawThermometer(
   ctx: CanvasRenderingContext2D,
@@ -161,31 +162,30 @@ function drawCollectible(
   x: number,
   y: number,
   radius: number,
-  label: string,
+  type: CollectibleType,
   frameCount: number,
 ): void {
   const bob = Math.sin(frameCount / 15) * 4;
+  const image = getCollectibleImage(type);
 
   ctx.save();
   ctx.translate(x, y + bob);
 
-  const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, radius);
-  grad.addColorStop(0, "#a5d6a7");
-  grad.addColorStop(1, "#2e7d32");
-  ctx.fillStyle = grad;
-  ctx.beginPath();
-  ctx.arc(0, 0, radius, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.strokeStyle = "rgba(255,255,255,0.5)";
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  ctx.fillStyle = "#ffffff";
-  ctx.font = `bold ${radius * 0.55}px Vazirmatn, Tahoma, sans-serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(label, 0, 0);
+  if (image) {
+    const size = radius * 2.5;
+    const aspect = image.width / image.height;
+    const width = aspect >= 1 ? size : size * aspect;
+    const height = aspect >= 1 ? size / aspect : size;
+    ctx.drawImage(image, -width / 2, -height / 2, width, height);
+  } else {
+    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, radius);
+    grad.addColorStop(0, "#a5d6a7");
+    grad.addColorStop(1, "#2e7d32");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   ctx.restore();
 }
@@ -231,7 +231,7 @@ export function renderGame(
         col.x,
         col.y,
         col.radius,
-        COLLECTIBLE_LABELS[col.type],
+        col.type,
         state.frameCount,
       );
     }

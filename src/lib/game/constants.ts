@@ -7,7 +7,7 @@ export const STORAGE_KEYS = {
 
 export const GRAVITY = 0.45;
 export const JUMP_FORCE = -7.5;
-export const PLAYER_RADIUS_RATIO = 0.050;
+export const PLAYER_RADIUS_RATIO = 0.065;
 export const OBSTACLE_WIDTH_RATIO = 0.18;
 export const GAP_HEIGHT_RATIO = 0.22;
 export const MIN_GAP_HEIGHT_RATIO = 0.16;
@@ -70,11 +70,11 @@ export const COLLECTIBLE_SCORES: Record<CollectibleType, number> = {
 };
 
 export const ROTATING_TIPS = [
-  "۲۵ درجه، انتخاب درست",
-  "ساعت خلوت‌تر، مصرف سبک‌تر",
-  "مصرف هم‌زمان کمتر = فشار کمتر به شبکه",
-  "روشنایی با همدلی ادامه دارد",
-  "با تنظیم درست مصرف، روشنایی برای همه ادامه پیدا می‌کند",
+  "مصرف بهینه با تنظیم کولر روی ۲۵ درجه",
+  "خاموش کردن وسایل اضافی، مصرف بهینه‌تر می‌سازد",
+  "کارهای پرمصرف را به ساعت خلوت‌تر منتقل کن",
+  "مصرف هم‌زمان کمتر، فشار کمتر به شبکه",
+  "با مصرف بهینه، روشنایی برای همه ادامه دارد",
 ];
 
 export const DEATH_MESSAGES: Record<string, string> = {

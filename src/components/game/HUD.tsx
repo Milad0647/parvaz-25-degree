@@ -1,19 +1,35 @@
 interface HUDProps {
   score: number;
-  bestScore: number;
-  phaseName: string;
+  isPaused: boolean;
+  onPause: () => void;
 }
 
-export function HUD({ score, bestScore, phaseName }: HUDProps) {
+export function HUD({ score, isPaused, onPause }: HUDProps) {
   return (
-    <div className="hud">
-      <div>
-        <div className="hud-score">{score}</div>
-        {bestScore > 0 && (
-          <div className="hud-best">رکورد: {bestScore}</div>
-        )}
+    <div className="hud-bar">
+      <div className="hud-score-block">
+        <img src="/icon/Star.png" alt="" className="hud-star" draggable={false} />
+        <span className="hud-score-value">{score}</span>
       </div>
-      <div className="hud-phase">{phaseName}</div>
+
+      <img
+        src="/icon/text.png"
+        alt="پرواز ۲۵ درجه"
+        className="hud-title"
+        draggable={false}
+      />
+
+      <button
+        type="button"
+        className="hud-pause-btn"
+        onClick={(e) => {
+          e.stopPropagation();
+          onPause();
+        }}
+        aria-label={isPaused ? "ادامه بازی" : "توقف بازی"}
+      >
+        <img src="/icon/puse.png" alt="" draggable={false} />
+      </button>
     </div>
   );
 }
