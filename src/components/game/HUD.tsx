@@ -8,12 +8,12 @@ export function HUD({ score, isPaused, onPause }: HUDProps) {
   return (
     <div className="hud-bar">
       <div className="hud-score-block">
-        <img src="/icon/Star.png" alt="" className="hud-star" draggable={false} />
+        <img src="/icon/Star.webp" alt="" className="hud-star" draggable={false} />
         <span className="hud-score-value">{score}</span>
       </div>
 
       <img
-        src="/icon/text.png"
+        src="/icon/text.webp"
         alt="پرواز ۲۵ درجه"
         className="hud-title"
         draggable={false}
@@ -28,7 +28,7 @@ export function HUD({ score, isPaused, onPause }: HUDProps) {
         }}
         aria-label={isPaused ? "ادامه بازی" : "توقف بازی"}
       >
-        <img src="/icon/puse.png" alt="" draggable={false} />
+        <img src="/icon/puse.webp" alt="" draggable={false} />
       </button>
     </div>
   );
