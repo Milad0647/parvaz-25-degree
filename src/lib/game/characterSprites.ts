@@ -82,11 +82,6 @@ export function getFlapFrameIndex(
   if (elapsed >= FLAP_ANIMATION_LENGTH) return 0;
 
   const frame = Math.floor(elapsed / FLAP_FRAME_DURATION);
-
-  if (isMobilePerfMode()) {
-    return Math.min(1, frame);
-  }
-
   return Math.min(FRAME_SOURCES.length - 1, frame);
 }
 
