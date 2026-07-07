@@ -4,6 +4,25 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "پرواز ۲۵ درجه",
   description: "مسیر روشنایی از ۲۵ درجه می‌گذرد — بازی آموزشی مصرف برق",
+  metadataBase: new URL("https://parvaz-25-degree.vercel.app"),
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
+  openGraph: {
+    title: "پرواز ۲۵ درجه",
+    description: "مسیر روشنایی از ۲۵ درجه می‌گذرد — بازی آموزشی مصرف برق",
+    type: "website",
+    locale: "fa_IR",
+    images: ["/icon.svg"],
+  },
+  twitter: {
+    card: "summary",
+    title: "پرواز ۲۵ درجه",
+    description: "بازی کمپینی مصرف برق — از شکاف ۲۵° عبور کن",
+    images: ["/icon.svg"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

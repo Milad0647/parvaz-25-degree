@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { getMedalForScore } from "@/lib/game/medals";
 
 interface GameOverScreenProps {
   score: number;
@@ -18,6 +19,7 @@ export function GameOverScreen({
   onMenu,
 }: GameOverScreenProps) {
   const isNewRecord = score >= bestScore && score > 0;
+  const medal = getMedalForScore(score);
 
   return (
     <motion.div
@@ -60,6 +62,20 @@ export function GameOverScreen({
             بهترین رکورد: {bestScore}
           </p>
         </div>
+
+        {medal && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="bg-yellow-500/15 border border-yellow-400/40 rounded-xl px-4 py-3 w-full"
+          >
+            <p className="text-yellow-300 font-bold text-sm">
+              {medal.emoji} {medal.title}
+            </p>
+            <p className="text-yellow-100/80 text-xs mt-1">{medal.description}</p>
+          </motion.div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
