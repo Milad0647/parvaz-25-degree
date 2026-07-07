@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { loadCharacterSprites } from "@/lib/game/characterSprites";
-import { loadCollectibleSprites } from "@/lib/game/collectibleSprites";
+// import { loadCollectibleSprites } from "@/lib/game/collectibleSprites";
 import { loadCityBackground, prepareCityStrip } from "@/lib/game/cityBackground";
 import { updateGameState } from "@/lib/game/engine";
 import { preloadAudio } from "@/lib/game/audio";
@@ -61,7 +61,7 @@ export function GameCanvas({
     preloadAudio();
     void Promise.all([
       loadCharacterSprites(),
-      loadCollectibleSprites(),
+      // loadCollectibleSprites(),
       loadCityBackground(),
       loadThermometerSprites(),
     ]).then(() => {

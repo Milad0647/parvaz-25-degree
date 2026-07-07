@@ -1,17 +1,16 @@
-import { isMobilePerfMode } from "./performance";
 import { GROUND_HEIGHT_RATIO } from "./constants";
 import {
   areCharacterSpritesLoaded,
   drawCharacterSprite,
   getFlapFrameIndex,
 } from "./characterSprites";
-import { getCollectibleImage } from "./collectibleSprites";
+// import { getCollectibleImage } from "./collectibleSprites";
 import { drawCityBackground } from "./cityBackground";
 import {
   areThermometerSpritesLoaded,
   drawThermometerSprites,
 } from "./thermometerSprites";
-import type { CollectibleType, Dimensions, GameState } from "./types";
+import type { Dimensions, GameState } from "./types";
 
 function drawThermometer(
   ctx: CanvasRenderingContext2D,
@@ -158,6 +157,8 @@ function drawWingedLamp(
   ctx.restore();
 }
 
+// Temporarily disabled — testing performance impact of mid-game collectibles.
+/*
 function drawCollectible(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -190,6 +191,7 @@ function drawCollectible(
 
   ctx.restore();
 }
+*/
 
 export function renderGame(
   ctx: CanvasRenderingContext2D,
@@ -227,6 +229,8 @@ export function renderGame(
     }
   }
 
+  // Temporarily disabled — testing performance impact of mid-game collectibles.
+  /*
   for (const col of state.collectibles) {
     if (col.collected || col.x < -40 || col.x > width + 40) continue;
 
@@ -239,6 +243,7 @@ export function renderGame(
         state.frameCount,
       );
   }
+  */
 
   const frameIndex = getFlapFrameIndex(
     state.frameCount,

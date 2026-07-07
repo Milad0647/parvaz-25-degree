@@ -18,7 +18,7 @@ import {
 } from "@/lib/game/engine";
 import { ENCOURAGEMENT_MESSAGES } from "@/lib/game/constants";
 import {
-  playTapSound,
+  // playTapSound,
   preloadAudio,
   startBackgroundMusic,
   stopBackgroundMusic,
@@ -182,7 +182,7 @@ export function GameContainer() {
     const wasReady = !state.gameStarted;
     stateRef.current = jump(state);
 
-    playTapSound();
+    // playTapSound();
 
     if (wasReady) {
       setGameStarted(true);

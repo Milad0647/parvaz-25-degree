@@ -1,11 +1,12 @@
-const TAP_SRC = "/music/Tap.mp3";
 const MUSIC_SRC = "/music/music.mp3";
 
+// Temporarily disabled — testing tap input performance.
+/*
+const TAP_SRC = "/music/Tap.mp3";
 const TAP_POOL_SIZE = 4;
 
 let tapPool: HTMLAudioElement[] = [];
 let tapPoolIndex = 0;
-let musicAudio: HTMLAudioElement | null = null;
 
 function ensureTapPool(): void {
   if (tapPool.length > 0) return;
@@ -17,24 +18,28 @@ function ensureTapPool(): void {
     return audio;
   });
 }
+*/
 
+let musicAudio: HTMLAudioElement | null = null;
 function getMusicAudio(): HTMLAudioElement {
   if (!musicAudio) {
     musicAudio = new Audio(MUSIC_SRC);
     musicAudio.loop = true;
-    musicAudio.volume = 0.35;
+    musicAudio.volume = 0.175;
     musicAudio.preload = "auto";
   }
   return musicAudio;
 }
 
 export function preloadAudio(): void {
-  ensureTapPool();
+  // ensureTapPool();
   void getMusicAudio().load();
 }
 
 /** Play tap SFX on next frame so input stays responsive. */
 export function playTapSound(): void {
+  // Temporarily disabled — testing tap input performance.
+  /*
   requestAnimationFrame(() => {
     try {
       ensureTapPool();
@@ -46,6 +51,7 @@ export function playTapSound(): void {
       // Autoplay restrictions — ignore silently
     }
   });
+  */
 }
 
 /** Start or resume looped background music without resetting playback. */

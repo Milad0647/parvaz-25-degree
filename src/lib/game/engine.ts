@@ -1,6 +1,6 @@
 import {
   BOTTOM_LABELS,
-  COLLECTIBLE_SCORES,
+  // COLLECTIBLE_SCORES,
   DEATH_MESSAGES,
   GAP_HEIGHT_RATIO,
   GRAVITY,
@@ -142,6 +142,8 @@ function updateReadyHover(
   return state;
 }
 
+// Temporarily disabled — testing performance impact of mid-game collectibles.
+/*
 function spawnCollectibleInGap(
   state: GameState,
   dimensions: Dimensions,
@@ -176,6 +178,7 @@ function spawnCollectibleInGap(
   state.collectibleSpawnTimer = 200 + Math.random() * 140;
   return true;
 }
+*/
 
 export function jump(state: GameState): GameState {
   if (state.screen !== "playing" || state.isPaused) return state;
@@ -353,6 +356,8 @@ export function updateGameState(
     return state;
   }
 
+  // Temporarily disabled — testing performance impact of mid-game collectibles.
+  /*
   state.collectibleSpawnTimer -= 1;
   if (state.collectibleSpawnTimer <= 0) {
     if (!spawnCollectibleInGap(state, dimensions)) {
@@ -389,6 +394,7 @@ export function updateGameState(
       state.slowMotionTimer = 180;
     }
   }
+  */
 
   return state;
 }
