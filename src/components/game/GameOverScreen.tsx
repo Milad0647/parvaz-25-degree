@@ -13,7 +13,6 @@ interface GameOverScreenProps {
 export function GameOverScreen({
   score,
   bestScore,
-  deathMessage,
   onRestart,
   onMenu,
 }: GameOverScreenProps) {
@@ -75,25 +74,6 @@ export function GameOverScreen({
         )}
 
         <p className="gameover-best">بهترین رکورد: {bestScore}</p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="gameover-message-block"
-        >
-          <div className="gameover-message-wrap">
-            <img
-              src="/icon/text-cap.webp"
-              alt=""
-              className="gameover-text-cap"
-              draggable={false}
-            />
-            <div className="gameover-message-inner">
-              <p className="gameover-message">{deathMessage}</p>
-            </div>
-          </div>
-        </motion.div>
 
         <div className="gameover-actions">
           <motion.button
